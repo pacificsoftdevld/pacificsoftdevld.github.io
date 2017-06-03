@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <title>Test</title>
+    </head>
+    <body>
+    	<textarea rows=7 cols=50 id="num"></textarea>
+    	<p>Result:<span id="result"></span></p>
+    	<button onClick="Add()">Click</button>
+    </body>
+    <script type="text/javascript">
+    	function Add(){
+    		var num = document.getElementById("num");
+    		num = num.value;
+    		num = num.replace(/ /g, "").replace(/^\s+|\s+$/g, "");
+    		var sum=0;
+    		var delimiters = [","];
+
+    		if (num.length < 1) {
+    			document.getElementById("resuilt").textContent=sum;
+    		} else {
+    			if (num.indexOf("\n")>=0 && num.indexOf("//") >= 0){
+    				delimiter = num.split("\n")[0];
+    				delimiters = delimiter.replace("//", "");
+
+    				if (delimiters.indexOf("[")>=0) {
+    					delimiters = delimiters.replace(/ /g, "");
+    					var regExp = /\[([^\]]+)\]/g;
+						var matches = delimiters.match(regExp);
+						delimiters = [];
+
+						if (matches != null) {
+							for (var i = 0; i < matches.length; i++) {
+							    var str = matches[i];
+							    delimiters.push(str.substring(1, str.length - 1));
+							}
+						}
+
+    				} else {
+    					delimiters = [];
+    					delimiters.push(delimiter.replace("//", ""));
+    				}
+
+    				for (var i=0; i<delimiters.length; i++){
+    					var matches = delimiters[i].match(/\d+/g);
+	    				if (matches != null){
+	    					document.getElementById("result").textContent="error delimiters";
+	    					return;
+	    				}
+    				}
+    				num = num.substring(num.indexOf("\n")+1, num.length);
+    			}
+
+    			if (num.indexOf("\n")>=0){
+    				num = num.replace(/\n/g, delimiters[0]);
+    			}
+
+    			var nums = num.split(new RegExp(delimiters.join('|').replace(/\*/gi, "\\*").replace(/\$/gi, "\\$").replace(/\%/gi, "\\%").replace(/\+/gi, "\\+").replace(/\^/gi, "\\^").replace(/\(/gi, "\\(").replace(/\)/gi, "\\)"), 'g'));
+
+    			var isnegatives = false;
+    			var negativestext = ''; 
+    			for (i=0; i<nums.length; i++) {
+
+    				if (nums[i].match(/^[-0-9]+$/) == null) {
+    					document.getElementById("result").textContent="error";
+    					return;
+    				}
+
+    				if (isNaN(parseInt(nums[i]))) {
+    					document.getElementById("result").textContent="error";
+    					return;
+    				} 
+
+    				if(parseInt(nums[i]) < 0) {
+
+    					if (negativestext == '') {
+    						negativestext = nums[i];
+    					} else {
+    						negativestext = negativestext + ";" + nums[i];
+    					}
+
+    					isnegatives  =true;
+    				}
+
+    				if (parseInt(nums[i]) <= 1000) {
+    					sum+=parseInt(nums[i]);
+    				}
+    			}
+
+    			if (isnegatives) {
+					document.getElementById("result").textContent="negatives not allowed("+negativestext+")";
+					return;
+				}
+
+    			document.getElementById("result").textContent=sum;
+    		}
+    	}
+    </script>
+</html>
